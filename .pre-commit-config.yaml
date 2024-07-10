@@ -1,0 +1,70 @@
+exclude: "(certificate*|static)/.*"
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: "v4.4.0"
+    hooks:
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-xml
+      - id: debug-statements
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: requirements-txt-fixer
+      - id: trailing-whitespace
+      - id: check-symlinks
+
+  - repo: https://github.com/asottile/yesqa
+    rev: v1.5.0
+    hooks:
+      - id: yesqa
+
+  - repo: https://github.com/asottile/pyupgrade
+    rev: "v3.15.2"
+    hooks:
+      - id: pyupgrade
+        args: ["--py39-plus"]
+
+  - repo: https://github.com/PyCQA/autoflake
+    rev: v2.3.1
+    hooks:
+      - id: autoflake
+        args:
+          [
+            "--in-place",
+            "--remove-all-unused-imports",
+            "--ignore-init-module-imports",
+          ]
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+        args: [--settings-file=pyproject.toml]
+
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+        args: [--config=pyproject.toml]
+
+  - repo: https://github.com/pycqa/flake8
+    rev: 7.0.0
+    hooks:
+      - id: flake8
+        additional_dependencies: [Flake8-pyproject]
+        args: [--toml-config=pyproject.toml]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.9.0
+    hooks:
+      - id: mypy
+        types: [python]
+        additional_dependencies:
+          - types-python-dateutil
+          - types-requests
+          - alembic
+          - types-PyMySQL
+          - types-redis
+        args:
+          - "--install-types"
+          - "--config-file=pyproject.toml"
