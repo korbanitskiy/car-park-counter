@@ -1,25 +1,43 @@
 import cv2
 import json
+from typing import TypedDict
+import os
 
-width, height = 107, 48
-color = (255, 0, 255)
-thickness = 2
+WIDTH, HEIGHT = 107, 48
+COLOR = (255, 0, 255)
+THICKNESS = 2
 
 
-class JSONParkPicker:
+class ParkSpace(TypedDict):
+    x: int
+    y: int
+
+
+
+class JSONPicker:
+
+    def __init__(self, path: str) -> None:
+        self.path = path
+        self._spaces: list[ParkSpace] = []
 
     def add(self, x: int, y: int):
-        pass
+        self._places.append(ParkSpace(x=x, y=y))
 
     def remove(self, x: int, y: int):
-        pass
-        # for i, position in enumerate(positions):
-        #     x1, y1 = position
-        #     if (x1 < x < x1 + width) and (y1 < y < y + height):
-        #         positions.pop(i)
+        for i, space in enumerate(self._spaces):
+            x_inside = x in range(space.x, space.x + WIDTH)
+            y_inside = y in range(space.y, space.y + HEIGHT)
+            if x_inside and y_inside:
+                self._spaces.pop(i)
+                break
 
     def save(self):
-        pass
+        with open(self.path, "w") as fp:
+            json.dump(self._spaces, fp, indent=2)
+    
+    @property
+    def spaces(self) -> list[ParkSpace]:
+        return self._spaces
 
     def __call__(self, events, x, y, flags, params):
         if events == cv2.EVENT_LBUTTONDOWN:
@@ -28,13 +46,29 @@ class JSONParkPicker:
         if events == cv2.EVENT_RBUTTONDOWN:
             self.remove(x, y)
     
+    def __enter__(self):
+        self._spaces = self._load_current_spaces()
+        return self
+    
+    def __exit__(self, exc, exc_type, exc_val):
+        self.save()
+    
+    def _load_current_spaces(self) -> list[ParkSpace]:
+        if not os.path.exists(self.path):
+            return []
+                
+        with open(self.path) as fp:
+            return [ParkSpace(row) for row in json.load(fp)]
+
+
+    
 
 def select_positions():
-    picker = JSONParkPicker("parks")
+    picker = JSONPicker("parks")
     while True:
         img = cv2.imread("carParkImg.png")
-        for park in picker.parks:
-            cv2.rectangle(img, park, (park[0] + width, park[1] + height), color, thickness)
+        for space in picker.spaces:
+            cv2.rectangle(img, space, (space.x + WIDTH, space.y + HEIGHT), COLOR, THICKNESS)
 
         cv2.imshow("Image", img)
         cv2.setMouseCallback("Image", picker)
