@@ -47,13 +47,13 @@ class JSONPicker:
             self.remove(x, y)
 
     def __enter__(self):
-        self._spaces = self._load_current_spaces()
+        self._spaces = self.load_current_spaces()
         return self
 
     def __exit__(self, exc, exc_type, exc_val):
         self.save()
 
-    def _load_current_spaces(self) -> list[ParkSpace]:
+    def load_current_spaces(self) -> list[ParkSpace]:
         if not os.path.exists(self.path):
             return []
 
