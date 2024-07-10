@@ -21,14 +21,23 @@ def count_park_spaces():
         if cap.get(cv2.CAP_PROP_POS_FRAMES) == cap.get(cv2.CAP_PROP_FRAME_COUNT):
             cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
-
         success, img = cap.read()
+        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        img_blur = cv2.GaussianBlur(img_gray, (3, 3), 1)
+        img_threshold = cv2.adaptiveThreshold(
+            img_blur,
+            255,
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+            cv2.THRESH_BINARY_INV,
+            25,
+            16,
+        )
         check_parking_spaces(img, park_spaces)
         for space in park_spaces:
             cv2.rectangle(img, (space.x, space.y), (space.x + WIDTH, space.y + HEIGHT), COLOR, THICKNESS)
 
 
-        cv2.imshow("Image", img)
+        cv2.imshow("Image", img_threshold)
         cv2.waitKey(10)
 
 
